@@ -1,0 +1,18 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "neoforge:separate_transforms",
+  "base": {
+    "parent": "ems_mod:item/shawarma_3d"
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "ems_mod:item/shawarma_2d"
+    },
+    "ground": {
+      "parent": "ems_mod:item/shawarma_3d"
+    },
+    "fixed": {
+      "parent": "ems_mod:item/shawarma_3d"
+    }
+  }
+}

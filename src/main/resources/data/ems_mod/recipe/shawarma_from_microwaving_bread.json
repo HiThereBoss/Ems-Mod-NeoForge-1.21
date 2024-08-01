@@ -1,0 +1,12 @@
+{
+  "type": "ems_mod:microwaving",
+  "ingredients": [
+    {
+      "item": "minecraft:bread"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "ems_mod:shawarma"
+  }
+}

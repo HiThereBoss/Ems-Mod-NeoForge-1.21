@@ -1,0 +1,18 @@
+{
+  "item.ems_mod.sapphire": "Sapphire",
+  "item.ems_mod.raw_sapphire": "Raw Sapphire",
+  "item.ems_mod.shawarma": "Shawarma",
+
+  "block.ems_mod.sapphire_block": "Block of Sapphire",
+  "block.ems_mod.raw_sapphire_block": "Block of Raw Sapphire",
+  "block.ems_mod.sapphire_ore": "Sapphire Ore",
+  "block.ems_mod.deepslate_sapphire_ore": "Deepslate Sapphire Ore",
+  "block.ems_mod.tray": "Tray",
+  "block.ems_mod.laptop": "Dan's Laptop",
+  "block.ems_mod.toiletpaper": "Toilet Paper",
+  "block.ems_mod.microwave": "Microwave",
+
+  "blockentity.ems_mod.tray_be": "Tray",
+
+  "creativetab.ems_tab": "Ems Tab"
+}

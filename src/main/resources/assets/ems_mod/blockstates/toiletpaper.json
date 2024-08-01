@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "ems_mod:block/toiletpaper" },
+    "facing=east": { "model": "ems_mod:block/toiletpaper", "y": 90 },
+    "facing=south": { "model": "ems_mod:block/toiletpaper", "y": 180 },
+    "facing=west": { "model": "ems_mod:block/toiletpaper", "y": 270 }
+  }
+}
