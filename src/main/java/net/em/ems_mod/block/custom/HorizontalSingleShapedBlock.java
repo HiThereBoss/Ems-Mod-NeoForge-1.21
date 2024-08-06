@@ -1,37 +1,36 @@
 package net.em.ems_mod.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.em.ems_mod.block.util.BoxPoints;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LaptopBlock extends HorizontalDirectionalBlock {
+public class HorizontalSingleShapedBlock extends HorizontalDirectionalBlock {
 
-    public static final VoxelShape NORTH_SHAPE = Shapes.or(Block.box(2.5,0,3.75,13.5,0.6,12), Block.box(2.5,0.35,11.85,13.5,8.7,12.3));
-    public static final VoxelShape SOUTH_SHAPE = Shapes.or(Block.box(2.5,0,4,13.5,0.6,12.25), Block.box(2.5,0.35,16-12.3,13.5,8.7,16-11.8));
-    public static final VoxelShape WEST_SHAPE = Shapes.or(Block.box(3.75,0,2.5,12,0.6,13.5), Block.box(11.85,0.35,2.5,12.3,8.7,13.5));
-    public static final VoxelShape EAST_SHAPE = Shapes.or(Block.box(4,0,2.5,12.25,0.6,13.5), Block.box(16-12.3,0.35,2.5,16-11.8,8.7,13.5));
+    public final VoxelShape NORTH_SHAPE;
+    public final VoxelShape SOUTH_SHAPE;
+    public final VoxelShape WEST_SHAPE;
+    public final VoxelShape EAST_SHAPE;
 
-    public LaptopBlock(Properties properties) {
+    public HorizontalSingleShapedBlock(Properties properties, BoxPoints boxPoints) {
         super(properties);
         registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
+        NORTH_SHAPE = Shapes.or(Block.box(boxPoints.x1, boxPoints.y1, boxPoints.z1, boxPoints.x2, boxPoints.y2, boxPoints.z2));
+        SOUTH_SHAPE = Shapes.or(Block.box(16-boxPoints.x2, boxPoints.y1, 16-boxPoints.z2, 16-boxPoints.x1, boxPoints.y2, 16-boxPoints.z1));
+        WEST_SHAPE = Shapes.or(Block.box(boxPoints.z1, boxPoints.y1, boxPoints.x1, boxPoints.z2, boxPoints.y2, boxPoints.x2));
+        EAST_SHAPE = Shapes.or(Block.box(16-boxPoints.z2, boxPoints.y1, 16-boxPoints.x2, 16-boxPoints.z1, boxPoints.y2, 16-boxPoints.x1));
     }
 
     @Override
@@ -70,10 +69,4 @@ public class LaptopBlock extends HorizontalDirectionalBlock {
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         return defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
     }
-
-    @Override
-    protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack pStack, @NotNull BlockState pState, Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull InteractionHand pHand, @NotNull BlockHitResult pHitResult) {
-        return ItemInteractionResult.SUCCESS;
-    }
-
 }

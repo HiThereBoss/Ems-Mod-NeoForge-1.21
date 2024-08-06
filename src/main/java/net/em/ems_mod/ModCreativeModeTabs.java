@@ -1,7 +1,7 @@
-package net.em.ems_mod.item;
+package net.em.ems_mod;
 
-import net.em.ems_mod.EmsMod;
 import net.em.ems_mod.block.ModBlocks;
+import net.em.ems_mod.item.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -27,6 +27,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.LAPTOP.get());
                         output.accept(ModBlocks.TRAY.get());
                         output.accept(ModBlocks.TOILET_PAPER.get());
+                        output.accept(ModBlocks.MICROWAVE.get());
+                        output.accept(ModBlocks.SINK.get());
                     })
                     .build());
 

@@ -1,6 +1,6 @@
 {
   "type": "ems_mod:microwaving",
-  "ingredients": [
+  "ingredient": [
     {
       "item": "minecraft:bread"
     }

@@ -1,40 +1,29 @@
 package net.em.ems_mod.recipe.microwave;
 
-import com.mojang.serialization.MapCodec;
 import net.em.ems_mod.EmsMod;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class MicrowaveRecipe implements Recipe<MicrowaveInput> {
     private final Ingredient inputItem;
     private final ItemStack output;
+    //private final int microwaveTime;
 
     public MicrowaveRecipe(Ingredient inputItem, ItemStack output) {
         this.inputItem = inputItem;
         this.output = output;
+        //this.microwaveTime = microwaveTime;
     }
 
     @Override
@@ -90,6 +79,10 @@ public class MicrowaveRecipe implements Recipe<MicrowaveInput> {
     public static final Supplier<RecipeSerializer<MicrowaveRecipe>> MICROWAVE_SERIALIZER =
             RECIPE_SERIALIZERS.register("microwaving", MicrowaveRecipeSerializer::new);
 
+    public static void register(IEventBus eventBus){
+        RECIPE_TYPES.register(eventBus);
+        RECIPE_SERIALIZERS.register(eventBus);
+    }
 
     public Ingredient getInputItem() {
         return this.inputItem;
@@ -98,5 +91,11 @@ public class MicrowaveRecipe implements Recipe<MicrowaveInput> {
     public ItemStack getResult() {
         return this.output;
     }
+
+    /* Don't know how to add this lmao
+    public int getMicrowaveTime(){
+        return this.microwaveTime;
+    }
+     */
 
 }

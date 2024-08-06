@@ -1,0 +1,26 @@
+{
+  "microwave_open": {
+    "subtitles": "sounds.ems_mod.microwave_open",
+    "sounds": [
+      "ems_mod:microwave_open"
+    ]
+  },
+  "microwave_close": {
+    "subtitles": "sounds.ems_mod.microwave_close",
+    "sounds": [
+      "ems_mod:microwave_close"
+    ]
+  },
+  "microwave_hum": {
+    "subtitles": "sounds.ems_mod.microwave_hum",
+    "sounds": [
+      "ems_mod:microwave_hum"
+    ]
+  },
+  "microwave_finished": {
+    "subtitles": "sounds.ems_mod.microwave_finished",
+    "sounds": [
+      "ems_mod:microwave_finished"
+    ]
+  }
+}

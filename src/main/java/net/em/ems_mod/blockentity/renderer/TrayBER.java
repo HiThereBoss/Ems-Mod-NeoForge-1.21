@@ -1,4 +1,4 @@
-package net.em.ems_mod.client.renderer;
+package net.em.ems_mod.blockentity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -32,7 +32,7 @@ public class TrayBER implements BlockEntityRenderer<TrayBlockEntity> {
         if(level == null)
             return;
 
-        BlockPos pos = pBlockEntity.getBlockPos().above();
+        BlockPos pos = pBlockEntity.getBlockPos();
 
         int packedLight = LightTexture.pack(
                 level.getBrightness(LightLayer.BLOCK, pos),

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "ems_mod:block/sink" },
+    "facing=east": { "model": "ems_mod:block/sink", "y": 90 },
+    "facing=south": { "model": "ems_mod:block/sink", "y": 180 },
+    "facing=west": { "model": "ems_mod:block/sink", "y": 270 }
+  }
+}

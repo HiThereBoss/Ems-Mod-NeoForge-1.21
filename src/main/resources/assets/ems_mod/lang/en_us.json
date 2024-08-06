@@ -11,8 +11,12 @@
   "block.ems_mod.laptop": "Dan's Laptop",
   "block.ems_mod.toiletpaper": "Toilet Paper",
   "block.ems_mod.microwave": "Microwave",
+  "block.ems_mod.sink": "Sink",
 
-  "blockentity.ems_mod.tray_be": "Tray",
+  "sounds.ems_mod.microwave_open": "Microwave lid opens",
+  "sounds.ems_mod.microwave_close": "Microwave lid closes",
+  "sounds.ems_mod.microwave_hum": "Microwave hums",
+  "sounds.ems_mod.microwave_finished": "Microwave beeps finished",
 
   "creativetab.ems_tab": "Ems Tab"
 }

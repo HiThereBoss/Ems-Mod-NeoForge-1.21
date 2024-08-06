@@ -1,6 +1,7 @@
 package net.em.ems_mod.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.em.ems_mod.block.util.BoxPoints;
 import net.em.ems_mod.blockentity.MicrowaveBlockEntity;
 import net.em.ems_mod.blockentity.ModBlockEntities;
 import net.em.ems_mod.blockentity.util.TickableBlockEntity;
@@ -19,21 +20,30 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MicrowaveBlock extends HorizontalDirectionalBlock implements EntityBlock{
-    public static final VoxelShape NORTH_SHAPE = Block.box(1.7,0,4.9,14.3,9.7,13);
-    public static final VoxelShape SOUTH_SHAPE = Block.box(16-14.3,0,16-13,16-1.7,9.7,16-4.9);
-    public static final VoxelShape WEST_SHAPE = Block.box(4.9,0,1.7,13,9.7,14.3);
-    public static final VoxelShape EAST_SHAPE = Block.box(16-13,0,16-14.3,16-4.9,9.7,16-1.7);
+    private static final BoxPoints boxPoints = new BoxPoints(1.7f,0f,4.8f,14.3f,9.7f,13f);
+
+    public static final VoxelShape  NORTH_SHAPE = Shapes.or(Block.box(boxPoints.x1, boxPoints.y1, boxPoints.z1, boxPoints.x2, boxPoints.y2, boxPoints.z2));
+    public static final VoxelShape  SOUTH_SHAPE = Shapes.or(Block.box(16-boxPoints.x2, boxPoints.y1, 16-boxPoints.z2, 16-boxPoints.x1, boxPoints.y2, 16-boxPoints.z1));
+    public static final VoxelShape  WEST_SHAPE = Shapes.or(Block.box(boxPoints.z1, boxPoints.y1, boxPoints.x1, boxPoints.z2, boxPoints.y2, boxPoints.x2));
+    public static final VoxelShape  EAST_SHAPE = Shapes.or(Block.box(16-boxPoints.z2, boxPoints.y1, 16-boxPoints.x2, 16-boxPoints.z1, boxPoints.y2, 16-boxPoints.x1));
+
+    public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 
     public MicrowaveBlock(Properties properties) {
         super(properties);
         registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
+        registerDefaultState(this.defaultBlockState().setValue(OPEN, Boolean.FALSE));
     }
 
     @Override
@@ -65,6 +75,7 @@ public class MicrowaveBlock extends HorizontalDirectionalBlock implements Entity
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
         pBuilder.add(FACING);
+        pBuilder.add(OPEN);
     }
 
     @Nullable
@@ -84,34 +95,31 @@ public class MicrowaveBlock extends HorizontalDirectionalBlock implements Entity
         BlockEntity be = pLevel.getBlockEntity(pPos);
         if (!(be instanceof MicrowaveBlockEntity blockEntity))
             return ItemInteractionResult.FAIL;
-        System.out.println("Before client check");
 
+        if (pLevel.isClientSide()) return ItemInteractionResult.SUCCESS;
 
-        if (!pPlayer.getItemInHand(pHand).isEmpty()){
-            blockEntity.takeItem(pStack, pPlayer, pHand);
-            return ItemInteractionResult.SUCCESS;
-        }
-        else{
-            blockEntity.giveOutputToPlayer(pPlayer);
-            return ItemInteractionResult.CONSUME_PARTIAL;
-        }
+        // Handles interaction
+        return blockEntity.interact(pStack,pPlayer,pHand,pState,pLevel,pPos);
+
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level pLevel, @NotNull BlockState pState, @NotNull BlockEntityType<T> pBlockEntityType) {
-
-        if (pLevel.isClientSide()) return null;
-
         return TickableBlockEntity.getTickerHelper(pLevel);
     }
 
-    /*
+
     @SuppressWarnings("deprecation")
     @Override
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof TrayBlockEntity blockEntity) {
+        if (be instanceof MicrowaveBlockEntity blockEntity) {
+            if (blockEntity.isChangingStates){
+                blockEntity.isChangingStates = false;
+                return;
+            }
+
             blockEntity.getOptional().ifPresent(handler -> {
                 for (int i = 0; i < handler.getSlots(); i++) {
                     Block.popResource(level, pos, handler.getStackInSlot(i));
@@ -122,5 +130,5 @@ public class MicrowaveBlock extends HorizontalDirectionalBlock implements Entity
         super.onRemove(state, level, pos, newState, isMoving);
     }
 
-     */
+
 }

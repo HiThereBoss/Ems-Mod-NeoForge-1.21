@@ -1,10 +1,8 @@
 package net.em.ems_mod.block;
 
 import net.em.ems_mod.EmsMod;
-import net.em.ems_mod.block.custom.LaptopBlock;
-import net.em.ems_mod.block.custom.MicrowaveBlock;
-import net.em.ems_mod.block.custom.ToiletPaperBlock;
-import net.em.ems_mod.block.custom.TrayBlock;
+import net.em.ems_mod.block.custom.*;
+import net.em.ems_mod.block.util.BoxPoints;
 import net.em.ems_mod.item.ModItems;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.BlockItem;
@@ -39,7 +37,7 @@ public class ModBlocks {
                     BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).strength(3f).requiresCorrectToolForDrops()));
 
     public static final DeferredBlock<TrayBlock> TRAY = registerBlock("tray",
-            () -> new TrayBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+            () -> new TrayBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(0.2f)));
 
     public static final DeferredBlock<LaptopBlock> LAPTOP = registerBlock("laptop",
             () -> new LaptopBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
@@ -48,7 +46,10 @@ public class ModBlocks {
             () -> new ToiletPaperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
 
     public static final DeferredBlock<MicrowaveBlock> MICROWAVE = registerBlock("microwave",
-            () -> new MicrowaveBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+            () -> new MicrowaveBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).lightLevel(state -> state.getValue(MicrowaveBlock.OPEN) ? 9 : 0)));
+
+    public static final DeferredBlock<HorizontalSingleShapedBlock> SINK = registerBlock("sink",
+            () -> new HorizontalSingleShapedBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK), new BoxPoints(0.01f,0.01f,0.01f,16f,16f,16f)));
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block){
         DeferredBlock<T> toReturn = BLOCKS.register(name, block);

@@ -1,8 +1,12 @@
 {
   "variants": {
-    "facing=north": { "model": "ems_mod:block/microwave" },
-    "facing=east": { "model": "ems_mod:block/microwave", "y": 90 },
-    "facing=south": { "model": "ems_mod:block/microwave", "y": 180 },
-    "facing=west": { "model": "ems_mod:block/microwave", "y": 270 }
+    "facing=north,open=false": { "model": "ems_mod:block/microwave" },
+    "facing=east,open=false": { "model": "ems_mod:block/microwave", "y": 90 },
+    "facing=south,open=false": { "model": "ems_mod:block/microwave", "y": 180 },
+    "facing=west,open=false": { "model": "ems_mod:block/microwave", "y": 270 },
+    "facing=north,open=true": { "model": "ems_mod:block/microwave_open" },
+    "facing=east,open=true": { "model": "ems_mod:block/microwave_open", "y": 90 },
+    "facing=south,open=true": { "model": "ems_mod:block/microwave_open", "y": 180 },
+    "facing=west,open=true": { "model": "ems_mod:block/microwave_open", "y": 270 }
   }
 }

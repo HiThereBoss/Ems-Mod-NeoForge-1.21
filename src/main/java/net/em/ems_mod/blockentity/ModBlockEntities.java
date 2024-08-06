@@ -19,7 +19,7 @@ public class ModBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MicrowaveBlockEntity>> MICROWAVE_BE =
             BLOCK_ENTITIES.register("microwave_be",
-                    () -> BlockEntityType.Builder.of(MicrowaveBlockEntity::new, ModBlocks.TRAY.get())
+                    () -> BlockEntityType.Builder.of(MicrowaveBlockEntity::new, ModBlocks.MICROWAVE.get())
                             .build(null));
 
     public static void register(IEventBus eventBus){

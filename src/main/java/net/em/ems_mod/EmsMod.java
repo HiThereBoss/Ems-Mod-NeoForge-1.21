@@ -2,15 +2,18 @@ package net.em.ems_mod;
 
 import net.em.ems_mod.block.ModBlocks;
 import net.em.ems_mod.blockentity.ModBlockEntities;
-import net.em.ems_mod.client.renderer.TrayBER;
-import net.em.ems_mod.item.ModCreativeModeTabs;
+import net.em.ems_mod.blockentity.renderer.MicrowaveBER;
+import net.em.ems_mod.blockentity.renderer.TrayBER;
 import net.em.ems_mod.item.ModItems;
+import net.em.ems_mod.recipe.microwave.MicrowaveRecipe;
+import net.em.ems_mod.sound.ModSounds;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
@@ -35,12 +38,10 @@ public class EmsMod
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public EmsMod(IEventBus modEventBus, ModContainer modContainer)
     {
-        // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
         ModCreativeModeTabs.register(modEventBus);
@@ -50,6 +51,10 @@ public class EmsMod
         ModBlocks.register(modEventBus);
 
         ModBlockEntities.register(modEventBus);
+
+        MicrowaveRecipe.register(modEventBus);
+
+        ModSounds.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.
@@ -91,6 +96,7 @@ public class EmsMod
         LOGGER.info("HELLO from server starting");
     }
 
+
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
@@ -98,14 +104,13 @@ public class EmsMod
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.MICROWAVE.get(), RenderType.TRANSLUCENT);
         }
 
         @SubscribeEvent
         public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
             event.registerBlockEntityRenderer(ModBlockEntities.TRAY_BE.get(), TrayBER::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.MICROWAVE_BE.get(), MicrowaveBER::new);
         }
     }
 }

@@ -1,27 +1,35 @@
 package net.em.ems_mod.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import net.em.ems_mod.EmsMod;
+import net.em.ems_mod.block.ModBlocks;
 import net.em.ems_mod.blockentity.ModBlockEntities;
 import net.em.ems_mod.blockentity.TrayBlockEntity;
+import net.em.ems_mod.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,40 +87,30 @@ public class TrayBlock extends HorizontalDirectionalBlock implements EntityBlock
         if (!(be instanceof TrayBlockEntity blockEntity))
             return ItemInteractionResult.FAIL;
 
-        // TODO: ALL OF THIS WORKS ON CLIENT SIDE TOO, SHOULD I FIX?
-
-        /*
         if (pLevel.isClientSide()){
             return ItemInteractionResult.SUCCESS;
         }
-        */
 
-        // Functionality
-        if (pPlayer.getItemInHand(pHand).isEmpty()){
-            blockEntity.takeItemFromTray(pPlayer);
-            return ItemInteractionResult.SUCCESS;
-        }
-        else {
-            blockEntity.addItemToTray(pStack, pPlayer, pHand);
-            return ItemInteractionResult.SUCCESS;
-        }
+        blockEntity.interact(pPlayer,pHand,pHitResult,pStack);
+
+        return ItemInteractionResult.SUCCESS;
     }
 
-    /*
-    @SuppressWarnings("deprecation")
     @Override
-    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof TrayBlockEntity blockEntity) {
-            blockEntity.getOptional().(handler -> {
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    Block.popResource(level, pos, handler.getStackInSlot(i));
-                }
-            });
+            if (player.isShiftKeyDown() && !level.isClientSide()){
+                // Drop the tray with its inventory kept
+            }
+            else{
+                blockEntity.getOptional().ifPresent(handler -> {
+                    for (int i = 0; i < handler.getSlots(); i++) {
+                        Block.popResource(level, pos, handler.getStackInSlot(i));
+                    }
+                });
+            }
         }
-
-        super.onRemove(state, level, pos, newState, isMoving);
+        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
     }
-
-     */
 }
