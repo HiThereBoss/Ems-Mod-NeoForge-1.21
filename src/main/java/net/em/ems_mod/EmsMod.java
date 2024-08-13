@@ -4,11 +4,15 @@ import net.em.ems_mod.block.ModBlocks;
 import net.em.ems_mod.blockentity.ModBlockEntities;
 import net.em.ems_mod.blockentity.renderer.MicrowaveBER;
 import net.em.ems_mod.blockentity.renderer.TrayBER;
+import net.em.ems_mod.entity.ModEntities;
+import net.em.ems_mod.entity.client.MiniVanRenderer;
+import net.em.ems_mod.entity.custom.MiniVanEntity;
 import net.em.ems_mod.item.ModItems;
 import net.em.ems_mod.recipe.microwave.MicrowaveRecipe;
 import net.em.ems_mod.sound.ModSounds;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.slf4j.Logger;
 
@@ -28,6 +32,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import software.bernie.geckolib.GeckoLib;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(EmsMod.MODID)
@@ -55,6 +60,8 @@ public class EmsMod
         MicrowaveRecipe.register(modEventBus);
 
         ModSounds.register(modEventBus);
+
+        ModEntities.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.
@@ -104,7 +111,7 @@ public class EmsMod
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            ItemBlockRenderTypes.setRenderLayer(ModBlocks.MICROWAVE.get(), RenderType.TRANSLUCENT);
+            EntityRenderers.register(ModEntities.MINIVAN_ENTITY.get(), MiniVanRenderer::new);
         }
 
         @SubscribeEvent

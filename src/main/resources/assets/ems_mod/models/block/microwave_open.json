@@ -5,6 +5,7 @@
 		"0": "ems_mod:block/microwave",
 		"particle": "ems_mod:block/microwave"
 	},
+	"render_type": "translucent",
 	"elements": [
 		{
 			"from": [12.7, 0, 5.325],

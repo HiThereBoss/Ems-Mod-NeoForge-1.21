@@ -21,6 +21,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.FluidState;
@@ -29,6 +30,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,9 +101,14 @@ public class TrayBlock extends HorizontalDirectionalBlock implements EntityBlock
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         BlockEntity be = level.getBlockEntity(pos);
+
         if (be instanceof TrayBlockEntity blockEntity) {
+
             if (player.isShiftKeyDown() && !level.isClientSide()){
-                // Drop the tray with its inventory kept
+                ItemStack itemStackToDrop = new ItemStack(this.asItem());
+                itemStackToDrop.applyComponents(blockEntity.collectComponents());
+                System.out.println(itemStackToDrop.getComponentsPatch());
+                Block.popResource(level,pos,itemStackToDrop);
             }
             else{
                 blockEntity.getOptional().ifPresent(handler -> {

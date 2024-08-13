@@ -4,6 +4,7 @@ import net.em.ems_mod.EmsMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -11,11 +12,13 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,8 +40,6 @@ public class TrayBlockEntity extends BlockEntity {
 
     private final Optional<ItemStackHandler> optional = Optional.of(this.inventory);
 
-    public DataComponentMap my_components = DataComponentMap.EMPTY;
-
     public TrayBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TRAY_BE.get(), pos, state);
     }
@@ -48,6 +49,7 @@ public class TrayBlockEntity extends BlockEntity {
         for (int i = 0; i < SLOTS; i++){
             toReturn[i] = this.inventory.getStackInSlot(i);
         }
+
         return toReturn;
     }
 
@@ -83,8 +85,10 @@ public class TrayBlockEntity extends BlockEntity {
                 // New item stack with one less item, or an empty one if 1 or lower items in stack
                 player.setItemInHand(hand, (stack.getCount() > 1) ? new ItemStack(stack.getItemHolder(), stack.getCount()-1, stack.getComponentsPatch()) : ItemStack.EMPTY);
 
+            //System.out.println(stack.getComponentsPatch());
             // stack.getComponentsPatch() provides components because the stack.getItem() method doesn't for some reason
             this.inventory.insertItem(slot, new ItemStack(stack.getItemHolder(),1, stack.getComponentsPatch()),false);
+
         }
         else{
             if (!player.isCreative()) player.getInventory().add(this.inventory.extractItem(slot,1,false));
@@ -163,6 +167,20 @@ public class TrayBlockEntity extends BlockEntity {
         return this.optional;
     }
 
+    public ItemStackHandler getInventory(){
+        return this.inventory;
+    }
+
+    // for debugging
+    public PatchedDataComponentMap getPatchedDataComponentMap(){
+        return new PatchedDataComponentMap(this.collectComponents());
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+    }
+
     @Override
     protected void loadAdditional(@NotNull CompoundTag pTag, HolderLookup.@NotNull Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
@@ -174,8 +192,6 @@ public class TrayBlockEntity extends BlockEntity {
     protected void saveAdditional(@NotNull CompoundTag pTag, HolderLookup.@NotNull Provider pRegistries) {
         super.saveAdditional(pTag, pRegistries);
         saveClientData(pTag, pRegistries);
-        if (!components().isEmpty())
-            this.my_components = components();
     }
 
     private void saveClientData(CompoundTag tag, HolderLookup.Provider registries){

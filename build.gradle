@@ -19,6 +19,13 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroup("software.bernie.geckolib")
+        }
+    }
     mavenLocal()
 }
 
@@ -90,6 +97,7 @@ configurations {
 }
 
 dependencies {
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     // Specify the version of Minecraft to use.
     // Depending on the plugin applied there are several options. We will assume you applied the userdev plugin as shown above.
     // The group for userdev is net.neoforged, the module name is neoforge, and the version is the same as the neoforge version.
@@ -119,6 +127,7 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
