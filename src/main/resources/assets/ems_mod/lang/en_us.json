@@ -18,5 +18,6 @@
   "sounds.ems_mod.microwave_hum": "Microwave hums",
   "sounds.ems_mod.microwave_finished": "Microwave beeps finished",
 
-  "creativetab.ems_tab": "Ems Tab"
+  "creativetab.ems_tab": "Ems Tab",
+  "container.tray": "Tray"
 }

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -65,6 +66,15 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
     private DoorStates passengersDoor = DoorStates.CLOSED;
     public boolean passengersDoorShouldAnimate = false;
 
+    private static final Vec3[] SEAT_POSITIONS = new Vec3[] {
+            new Vec3(7.8f/16f, 11.7f/16f, 13.9f/16f),  // Driver
+            new Vec3(-0.5, 1.2, -1.5), // Front passenger
+            new Vec3(0.5, 1.2, 0.0),   // Back left
+            new Vec3(-0.5, 1.2, 0.0)   // Back right
+    };
+
+    private final Entity[] seatOccupants = new Entity[SEAT_POSITIONS.length];
+
     public MiniVanEntity(EntityType<? extends VehicleEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
@@ -98,6 +108,7 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
         } else {
             return Status.IN_AIR;
         }
+
     }
 
     @Nullable
@@ -125,28 +136,29 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
         this.deltaRotation = this.deltaRotation * this.invFriction * 0.9f;
     }
 
+    public float getDeltaRotation() {
+        return this.deltaRotation;
+    }
+
     private void controlVan() {
         if (this.isVehicle()) {
             float f = 0.0F;
             if (this.inputLeft) {
-                this.deltaRotation--;
+                this.deltaRotation = deltaRotation - 0.5f;
             }
 
             if (this.inputRight) {
-                this.deltaRotation++;
+                this.deltaRotation = deltaRotation + 0.5f;
             }
-
-            if (this.inputRight != this.inputLeft && !this.inputUp && !this.inputDown) {
-                f += 0.005F;
-            }
-
+            
             this.setYRot(this.getYRot() + this.deltaRotation);
+
             if (this.inputUp) {
                 f += 0.04F;
             }
 
             if (this.inputDown) {
-                f -= 0.005F;
+                f -= 0.03F;
             }
 
             this.setDeltaMovement(
@@ -280,13 +292,13 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
 
     @Override
     protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity pEntity, @NotNull EntityDimensions pDimensions, float pPartialTick) {
-        if (driversDoor == DoorStates.OPEN){
-            return new Vec3(7.8f/16f, 11.7f/16f, 13.9f/16f).yRot(-this.getYRot() * (float) (Math.PI / 180.0));
+        for (int i = 0; i < seatOccupants.length; i++) {
+            if (seatOccupants[i] == pEntity) {
+                // Rotate position with vehicle
+                return SEAT_POSITIONS[i].yRot(-this.getYRot() * (float) (Math.PI / 180.0));
+            }
         }
-        else {
-            return super.getPassengerAttachmentPoint(pEntity, pDimensions, pPartialTick);
-        }
-
+        return super.getPassengerAttachmentPoint(pEntity, pDimensions, pPartialTick);
     }
 
     @Override
@@ -305,7 +317,7 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
     }
 
     private int getMaxPassengers() {
-        return 4;
+        return SEAT_POSITIONS.length;
     }
 
     @Override
@@ -351,10 +363,39 @@ public class MiniVanEntity extends VehicleEntity implements GeoEntity{
     }
 
     // TODO: Door opening logic and riding logic
-    public void onPlayerInteract(Player player){
+    public void onPlayerInteract(PlayerInteractEvent.EntityInteractSpecific event){
+        Player player = event.getEntity();
 
-        // Riding logic (need to add checking for doors open based on position clicked... god)
-        player.startRiding(this);
+        for (int i = 0; i < seatOccupants.length; i++) {
+            if (seatOccupants[i] == null) {
+                seatOccupants[i] = player;
+                player.startRiding(this);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void removePassenger(Entity passenger) {
+        for (int i = 0; i < seatOccupants.length; i++) {
+            if (seatOccupants[i] == passenger) {
+                seatOccupants[i] = null;
+
+//                // Shift later passengers forward
+//                for (int j = i + 1; j < seatOccupants.length; j++) {
+//                    if (seatOccupants[j] != null) {
+//                        seatOccupants[i] = seatOccupants[j];
+//                        seatOccupants[j] = null;
+//                        i++; // Move i to next filled slot
+//                    } else {
+//                        break;
+//                    }
+//                }
+                break;
+            }
+        }
+
+        super.removePassenger(passenger);
     }
 
     @Override

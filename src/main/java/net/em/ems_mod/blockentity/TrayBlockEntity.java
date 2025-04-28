@@ -3,29 +3,27 @@ package net.em.ems_mod.blockentity;
 import net.em.ems_mod.EmsMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class TrayBlockEntity extends BlockEntity {
+
+    public CompoundTag data = new CompoundTag();
 
     private static final int SLOTS = 3;
 
@@ -38,36 +36,26 @@ public class TrayBlockEntity extends BlockEntity {
         }
     };
 
-    private final Optional<ItemStackHandler> optional = Optional.of(this.inventory);
+    private final Optional<ItemStackHandler> itemStackHandler = Optional.of(this.inventory);
 
     public TrayBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TRAY_BE.get(), pos, state);
     }
 
-    public ItemStack[] getRenderStacks(){
-        ItemStack[] toReturn = new ItemStack[SLOTS];
-        for (int i = 0; i < SLOTS; i++){
-            toReturn[i] = this.inventory.getStackInSlot(i);
-        }
-
-        return toReturn;
+    enum AxisToUse {
+        X,Z
     }
-
     public void interact(Player player, InteractionHand hand, BlockHitResult hitResult, ItemStack stack){
 
-        enum AXIS_TO_USE{
-            X,Z
-        }
-
-        AXIS_TO_USE axisToUse = AXIS_TO_USE.X;
+        AxisToUse axisToUse = AxisToUse.X;
 
         switch (getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)){
-            case NORTH, SOUTH -> axisToUse = AXIS_TO_USE.X;
-            case EAST, WEST -> axisToUse = AXIS_TO_USE.Z;
+            //case NORTH, SOUTH -> axisToUse = AxisToUse.X;
+            case EAST, WEST -> axisToUse = AxisToUse.Z;
         }
 
         int slot;
-        if (axisToUse == AXIS_TO_USE.X){
+        if (axisToUse == AxisToUse.X){
             double locX = Math.abs(hitResult.getLocation().x - (double)getBlockPos().getX());
             if (locX <= (double)(1f/3f)) {slot = 0;}
             else if (locX >= (double)(2f/3f)) {slot = 2;}
@@ -81,14 +69,10 @@ public class TrayBlockEntity extends BlockEntity {
         }
 
         if (this.inventory.getStackInSlot(slot).isEmpty()){
-            if (!player.isCreative())
-                // New item stack with one less item, or an empty one if 1 or lower items in stack
-                player.setItemInHand(hand, (stack.getCount() > 1) ? new ItemStack(stack.getItemHolder(), stack.getCount()-1, stack.getComponentsPatch()) : ItemStack.EMPTY);
+            if (!player.isCreative()) player.getItemInHand(hand).shrink(1);
 
-            //System.out.println(stack.getComponentsPatch());
             // stack.getComponentsPatch() provides components because the stack.getItem() method doesn't for some reason
             this.inventory.insertItem(slot, new ItemStack(stack.getItemHolder(),1, stack.getComponentsPatch()),false);
-
         }
         else{
             if (!player.isCreative()) player.getInventory().add(this.inventory.extractItem(slot,1,false));
@@ -163,22 +147,21 @@ public class TrayBlockEntity extends BlockEntity {
 
      */
 
-    public Optional<ItemStackHandler> getOptional() {
-        return this.optional;
+    public Optional<ItemStackHandler> getItemStackHandler() {
+        return this.itemStackHandler;
     }
 
     public ItemStackHandler getInventory(){
         return this.inventory;
     }
 
-    // for debugging
-    public PatchedDataComponentMap getPatchedDataComponentMap(){
-        return new PatchedDataComponentMap(this.collectComponents());
-    }
+    public ItemStack[] getRenderStacks(){
+        ItemStack[] toReturn = new ItemStack[SLOTS];
+        for (int i = 0; i < SLOTS; i++){
+            toReturn[i] = this.inventory.getStackInSlot(i);
+        }
 
-    @Override
-    public void setChanged() {
-        super.setChanged();
+        return toReturn;
     }
 
     @Override
@@ -186,7 +169,6 @@ public class TrayBlockEntity extends BlockEntity {
         super.loadAdditional(pTag, pRegistries);
         loadClientData(pTag, pRegistries);
     }
-
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag pTag, HolderLookup.@NotNull Provider pRegistries) {
@@ -198,6 +180,12 @@ public class TrayBlockEntity extends BlockEntity {
         var emsData = new CompoundTag();
         emsData.put("Inventory", this.inventory.serializeNBT(registries));
         tag.put(EmsMod.MODID, emsData);
+
+        data = tag;
+
+        if (data.getCompound(EmsMod.MODID).contains("Inventory")
+                && Objects.requireNonNull(data.getCompound(EmsMod.MODID).getCompound("Inventory").get("Items")).toString().equals("[]"))
+            data = new CompoundTag();
     }
 
     private void loadClientData(CompoundTag tag, HolderLookup.Provider registries){

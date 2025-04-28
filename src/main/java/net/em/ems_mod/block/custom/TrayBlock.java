@@ -1,37 +1,27 @@
 package net.em.ems_mod.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import net.em.ems_mod.EmsMod;
 import net.em.ems_mod.block.ModBlocks;
 import net.em.ems_mod.blockentity.ModBlockEntities;
 import net.em.ems_mod.blockentity.TrayBlockEntity;
-import net.em.ems_mod.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.component.PatchedDataComponentMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,25 +89,32 @@ public class TrayBlock extends HorizontalDirectionalBlock implements EntityBlock
     }
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public @NotNull BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity be = level.getBlockEntity(pos);
 
         if (be instanceof TrayBlockEntity blockEntity) {
 
             if (player.isShiftKeyDown() && !level.isClientSide()){
-                ItemStack itemStackToDrop = new ItemStack(this.asItem());
-                itemStackToDrop.applyComponents(blockEntity.collectComponents());
-                System.out.println(itemStackToDrop.getComponentsPatch());
+                ItemStack itemStackToDrop = new ItemStack(ModBlocks.TRAY.get());
+
+                // Save before reading the data
+                blockEntity.saveCustomAndMetadata(level.registryAccess());
+
+                // Take stored data variable and set it to block_entity_data component type in item to drop
+                CustomData.set(DataComponents.BLOCK_ENTITY_DATA, itemStackToDrop, blockEntity.data);
+
                 Block.popResource(level,pos,itemStackToDrop);
             }
-            else{
-                blockEntity.getOptional().ifPresent(handler -> {
+            else if (!player.isCreative()){
+                blockEntity.getItemStackHandler().ifPresent(handler -> {
                     for (int i = 0; i < handler.getSlots(); i++) {
                         Block.popResource(level, pos, handler.getStackInSlot(i));
                     }
                 });
+                Block.popResource(level, pos, new ItemStack(ModBlocks.TRAY.get()));
             }
         }
-        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
+
+        return super.playerWillDestroy(level, pos, state, player);
     }
 }

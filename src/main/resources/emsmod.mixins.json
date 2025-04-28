@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "net.em.ems_mod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "HumanoidModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
